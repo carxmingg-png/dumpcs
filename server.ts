@@ -872,6 +872,21 @@ import {
   ALL_NUMBER_PLATE_BODY_PARTS,
   ALL_WHEEL_RIM_REWARDS,
   ALL_WHEEL_RIM_BODY_PARTS,
+  ALL_HEADLIGHT_REWARDS,
+  ALL_HEADLIGHT_BODY_PARTS,
+  ALL_SMOKE_REWARDS,
+  ALL_SMOKE_BODY_PARTS,
+  ALL_EXHAUST_EFFECT_REWARDS,
+  ALL_EXHAUST_EFFECT_PARTS,
+  ALL_BRAKE_ROTOR_REWARDS,
+  ALL_BRAKE_ROTOR_PARTS,
+  ALL_VINYL_PACK_KEYS,
+  injectHeadlightCosmetics,
+  injectSmokeCosmetics,
+  injectExhaustCosmetics,
+  injectBrakeRotorCosmetics,
+  applyUniversalLiveriesToAllCars,
+  applyUltimateSpeedTuningToAllCars,
   getNeonKeys,
   getTireSidewallKeys,
   getNumberPlateKeys,
@@ -1602,6 +1617,111 @@ function addPartsToAllCars(profile: any, carParts: string[]): number {
   return addedParts;
 }
 
+// Ensure all existing cosmetics (neons, rims, sidewalls, number plates) are injected onto every car in profile
+export function ensureCosmeticsOnAllCars(profile: any): void {
+  if (!profile) return;
+  const bpKeys: string[] = Array.isArray(profile.battle_pass_event_rewards?.keys)
+    ? profile.battle_pass_event_rewards.keys
+    : [];
+  const bpSet = new Set<string>(bpKeys);
+
+  const partsToSpread: string[] = [];
+
+  // 1. Neons
+  for (const rk of ALL_NEON_REWARDS) {
+    if (bpSet.has(rk)) {
+      const num = rk.match(/\d+/)?.[0] || "1";
+      partsToSpread.push(
+        "neon_front_static", "neon_side_static", "neon_rear_static",
+        "neon_front_empty", "neon_side_empty", "neon_rear_empty",
+        "neon_front_animated", "neon_side_animated", "neon_rear_animated",
+        `neon_front_animated_${num}`, `neon_side_animated_${num}`, `neon_rear_animated_${num}`, `neon_animated_${num}`
+      );
+    }
+  }
+
+  // 2. Tire sidewalls
+  for (const rk of ALL_TIRE_SIDE_WALL_REWARDS) {
+    if (bpSet.has(rk)) {
+      const match = rk.replace(/^unlock_/, "");
+      const matchedParts = ALL_TIRE_SIDE_WALL_BODY_PARTS.filter(p => p.includes(match) || match.includes(p));
+      partsToSpread.push(...matchedParts);
+    }
+  }
+
+  // 3. Number plates
+  for (const rk of ALL_NUMBER_PLATE_REWARDS) {
+    if (bpSet.has(rk)) {
+      const cleanName = rk.replace(/^unlock_/, "");
+      const matchedParts = ALL_NUMBER_PLATE_BODY_PARTS.filter(p => p.includes(cleanName) || cleanName.includes(p));
+      if (matchedParts.length > 0) {
+        partsToSpread.push(...matchedParts);
+      } else {
+        partsToSpread.push(cleanName);
+      }
+    }
+  }
+
+  // 4. Wheel rims
+  for (const rk of ALL_WHEEL_RIM_REWARDS) {
+    if (bpSet.has(rk)) {
+      const num = rk.match(/\d+/)?.[0] || "1";
+      partsToSpread.push(`wheel_rim_${num}`);
+    }
+  }
+
+  // 5. Headlights & Glass Tint
+  for (const rk of ALL_HEADLIGHT_REWARDS) {
+    if (bpSet.has(rk)) {
+      const matchKey = rk.replace(/^unlock_headlight_/, "");
+      partsToSpread.push(...ALL_HEADLIGHT_BODY_PARTS.filter(p => p.includes(matchKey) || p.startsWith("glass_lights") || p === "headlight_paints"));
+    }
+  }
+
+  // 6. Burnout Smoke
+  for (const rk of ALL_SMOKE_REWARDS) {
+    if (bpSet.has(rk)) {
+      const matchKey = rk.replace(/^unlock_smoke_/, "");
+      partsToSpread.push(...ALL_SMOKE_BODY_PARTS.filter(p => p.includes(matchKey) || p.startsWith("smoke_")));
+    }
+  }
+
+  // 7. Exhaust Backfire & Flames
+  for (const rk of ALL_EXHAUST_EFFECT_REWARDS) {
+    if (bpSet.has(rk)) {
+      const matchKey = rk.replace(/^unlock_exhaust_/, "");
+      partsToSpread.push(...ALL_EXHAUST_EFFECT_PARTS.filter(p => p.includes(matchKey) || p.includes("exhaust_effect_parts")));
+    }
+  }
+
+  // 8. Brake Rotors & Calipers
+  for (const rk of ALL_BRAKE_ROTOR_REWARDS) {
+    if (bpSet.has(rk)) {
+      const matchKey = rk.replace(/^unlock_brake_/, "");
+      partsToSpread.push(...ALL_BRAKE_ROTOR_PARTS.filter(p => p.includes(matchKey) || p.includes("rotor_") || p.includes("caliper_")));
+    }
+  }
+
+  // Collect any rims or parts already owned on any single car so every other car gets them too
+  const carsDict = profile.cars?.items || (profile.cars && typeof profile.cars === "object" && !Array.isArray(profile.cars) ? profile.cars : {});
+  for (const cid of Object.keys(carsDict)) {
+    const c = carsDict[cid];
+    if (c?.body_part_set?.keys && Array.isArray(c.body_part_set.keys)) {
+      for (const pk of c.body_part_set.keys) {
+        if (typeof pk === "string" && (pk.startsWith("wheel_rim_") || pk.startsWith("neon_") || pk.startsWith("tire_side_wall_") || pk.startsWith("number_plate_"))) {
+          partsToSpread.push(pk);
+        }
+      }
+    }
+  }
+
+  if (partsToSpread.length > 0) {
+    addPartsToAllCars(profile, Array.from(new Set(partsToSpread)));
+  }
+  // Ensure universal liveries (6 slots + author rights + vinyl packs) across ALL cars
+  applyUniversalLiveriesToAllCars(profile);
+}
+
 // ── Cosmetic Injection Helpers with One-by-One Support ───────────────────────
 export function injectNeonCosmetics(profile: any, option: string = "all", count?: number): { addedRewards: number; addedParts: number; messageDetail?: string } {
   profile.battle_pass_event_rewards = profile.battle_pass_event_rewards || { keys: [] };
@@ -1828,6 +1948,9 @@ export function implantCarsFromBot(profile: any, carsToAdd: Record<string, any>)
   if (!existing[String(profile.current_car_id)]) {
     profile.current_car_id = Object.keys(existing)[0] || "1000";
   }
+
+  // Ensure all unlocked cosmetics (neons, rims, sidewalls, number plates) are applied to all newly added cars
+  ensureCosmeticsOnAllCars(profile);
 
   const activeModelsMap: Record<string, number> = {};
   for (const cid in existing) {
@@ -2129,7 +2252,23 @@ export function extractProfileStats(profile: any, debug = false) {
 
   const activeCarParts: string[] = Array.isArray(activeCarObj?.body_part_set?.keys) ? activeCarObj.body_part_set.keys : [];
   const rimsCarCount = activeCarParts.filter(k => k.startsWith("wheel_rim_")).length;
+  const neonsCarCount = activeCarParts.filter(k => k.startsWith("neon_")).length;
+  const tireWallsCarCount = activeCarParts.filter(k => k.startsWith("tire_side_wall_")).length;
+  const platesCarCount = activeCarParts.filter(k => k.startsWith("number_plate_")).length;
+
   const totalRimsCount = Math.max(rimsBpCount * 40, rimsCarCount);
+
+  // Check if ALL cars in fleet have neons and rims injected
+  const allCarKeys = Object.keys(carsObj);
+  let carsWithNeonsCount = 0;
+  let carsWithRimsCount = 0;
+  for (const cid of allCarKeys) {
+    const cParts: string[] = Array.isArray(carsObj[cid]?.body_part_set?.keys) ? carsObj[cid].body_part_set.keys : [];
+    if (cParts.some(p => p.startsWith("neon_"))) carsWithNeonsCount++;
+    if (cParts.some(p => p.startsWith("wheel_rim_"))) carsWithRimsCount++;
+  }
+  const allCarsHaveNeons = allCarKeys.length > 0 && carsWithNeonsCount === allCarKeys.length;
+  const allCarsHaveRims = allCarKeys.length > 0 && carsWithRimsCount === allCarKeys.length;
 
   return {
     cash: finalCash,
@@ -2159,7 +2298,7 @@ export function extractProfileStats(profile: any, debug = false) {
     banners_count: bannersCount,
     neons_count: neonsCount,
     neons_total: ALL_NEON_REWARDS.length,
-    neons_approved: neonsCount === ALL_NEON_REWARDS.length,
+    neons_approved: neonsCount === ALL_NEON_REWARDS.length && (allCarKeys.length === 0 || allCarsHaveNeons),
     tire_walls_count: tireWallsCount,
     tire_walls_total: ALL_TIRE_SIDE_WALL_REWARDS.length,
     tire_walls_approved: tireWallsCount === ALL_TIRE_SIDE_WALL_REWARDS.length,
@@ -2168,7 +2307,31 @@ export function extractProfileStats(profile: any, debug = false) {
     plates_approved: platesCount >= 70,
     rims_count: totalRimsCount,
     rims_total: 412,
-    rims_approved: totalRimsCount >= 10,
+    rims_approved: (totalRimsCount >= 10 || rimsBpCount >= 10) && (allCarKeys.length === 0 || allCarsHaveRims),
+    cars_with_neons: carsWithNeonsCount,
+    cars_with_rims: carsWithRimsCount,
+    all_cars_have_neons: allCarsHaveNeons,
+    all_cars_have_rims: allCarsHaveRims,
+    headlights_count: ALL_HEADLIGHT_REWARDS.filter(rk => bpSet.has(rk)).length,
+    headlights_total: ALL_HEADLIGHT_REWARDS.length,
+    headlights_approved: ALL_HEADLIGHT_REWARDS.filter(rk => bpSet.has(rk)).length === ALL_HEADLIGHT_REWARDS.length,
+    smoke_count: ALL_SMOKE_REWARDS.filter(rk => bpSet.has(rk)).length,
+    smoke_total: ALL_SMOKE_REWARDS.length,
+    smoke_approved: ALL_SMOKE_REWARDS.filter(rk => bpSet.has(rk)).length === ALL_SMOKE_REWARDS.length,
+    exhaust_count: ALL_EXHAUST_EFFECT_REWARDS.filter(rk => bpSet.has(rk)).length,
+    exhaust_total: ALL_EXHAUST_EFFECT_REWARDS.length,
+    exhaust_approved: ALL_EXHAUST_EFFECT_REWARDS.filter(rk => bpSet.has(rk)).length === ALL_EXHAUST_EFFECT_REWARDS.length,
+    brake_rotors_count: ALL_BRAKE_ROTOR_REWARDS.filter(rk => bpSet.has(rk)).length,
+    brake_rotors_total: ALL_BRAKE_ROTOR_REWARDS.length,
+    brake_rotors_approved: ALL_BRAKE_ROTOR_REWARDS.filter(rk => bpSet.has(rk)).length === ALL_BRAKE_ROTOR_REWARDS.length,
+    all_cars_have_liveries: allCarKeys.length > 0 && allCarKeys.every(cid => {
+      const c = carsDict[cid];
+      return c?.vinyls_slots?.items && Object.keys(c.vinyls_slots.items).length >= 6;
+    }),
+    all_cars_speed_tuned: allCarKeys.length > 0 && allCarKeys.every(cid => {
+      const c = carsDict[cid];
+      return c?.resources?.repair_limit?.amount >= 99999;
+    }),
     profile_styles_approved: avatarsCount >= 18 && framesCount >= 18,
     maps_approved: unlockedMaps.length === 6,
     houses_approved: realEstatesCount >= 11,
@@ -4322,6 +4485,17 @@ export function modifyProfile(
     plate_option?: string;
     unlock_wheel_rims?: boolean;
     rim_option?: string;
+    unlock_headlights?: boolean;
+    headlight_option?: string;
+    unlock_smoke?: boolean;
+    smoke_option?: string;
+    unlock_exhaust_effects?: boolean;
+    exhaust_option?: string;
+    unlock_brake_rotors?: boolean;
+    brake_option?: string;
+    inject_universal_livery?: boolean;
+    inject_ultimate_speed?: boolean;
+    ultimate_injection?: boolean;
     custom_count?: number;
     inject_achievements?: boolean;
     overwrite_resources?: boolean;
@@ -4821,12 +4995,39 @@ export function modifyProfile(
   if (mods.unlock_wheel_rims) {
     injectWheelRims(profile, mods.rim_option || "all", mods.custom_count);
   }
-  if (mods.unlock_all || mods.inject_everything) {
+  if (mods.unlock_headlights) {
+    injectHeadlightCosmetics(profile, mods.headlight_option || "all", mods.custom_count);
+  }
+  if (mods.unlock_smoke) {
+    injectSmokeCosmetics(profile, mods.smoke_option || "all", mods.custom_count);
+  }
+  if (mods.unlock_exhaust_effects) {
+    injectExhaustCosmetics(profile, mods.exhaust_option || "all", mods.custom_count);
+  }
+  if (mods.unlock_brake_rotors) {
+    injectBrakeRotorCosmetics(profile, mods.brake_option || "all", mods.custom_count);
+  }
+  if (mods.inject_universal_livery) {
+    applyUniversalLiveriesToAllCars(profile);
+  }
+  if (mods.inject_ultimate_speed) {
+    applyUltimateSpeedTuningToAllCars(profile, PREMIUM_BUILDS);
+  }
+  if (mods.unlock_all || mods.inject_everything || mods.ultimate_injection) {
     injectNeonCosmetics(profile, "all");
     injectTireSidewalls(profile, "all");
     injectNumberPlates(profile, "all");
     injectWheelRims(profile, "all");
+    injectHeadlightCosmetics(profile, "all");
+    injectSmokeCosmetics(profile, "all");
+    injectExhaustCosmetics(profile, "all");
+    injectBrakeRotorCosmetics(profile, "all");
+    applyUniversalLiveriesToAllCars(profile);
+    applyUltimateSpeedTuningToAllCars(profile, PREMIUM_BUILDS);
   }
+
+  // Ensure all unlocked cosmetics (neons, rims, sidewalls, number plates) are applied to all cars in the garage
+  ensureCosmeticsOnAllCars(profile);
 
   profile.date_time = new Date().toISOString().replace("T", " ").substring(0, 19);
 
@@ -6448,6 +6649,17 @@ app.post(["/api/carx/inject", "/carx/inject"], authMiddleware, async (req, res) 
     plate_option = "all",
     unlock_wheel_rims = false,
     rim_option = "all",
+    unlock_headlights = false,
+    headlight_option = "all",
+    unlock_smoke = false,
+    smoke_option = "all",
+    unlock_exhaust_effects = false,
+    exhaust_option = "all",
+    unlock_brake_rotors = false,
+    brake_option = "all",
+    inject_universal_livery = false,
+    inject_ultimate_speed = false,
+    ultimate_injection = false,
     inject_car,
     inject_cars,
     avatar,
@@ -6488,6 +6700,14 @@ app.post(["/api/carx/inject", "/carx/inject"], authMiddleware, async (req, res) 
     unlock_tire_walls: "battlepass",
     unlock_number_plates: "battlepass",
     unlock_wheel_rims: "battlepass",
+    unlock_headlights: "battlepass",
+    unlock_smoke: "battlepass",
+    unlock_exhaust_effects: "battlepass",
+    unlock_brake_rotors: "battlepass",
+    inject_universal_livery: "battlepass",
+    inject_ultimate_speed: "get_all_cars",
+    ultimate_injection: "cash_gold",
+    menu_ultimate: "cash_gold",
     inject_car: "get_all_cars",
     inject_cars: "get_all_cars",
     inject_random_cars: "get_all_cars",
@@ -6536,6 +6756,13 @@ app.post(["/api/carx/inject", "/carx/inject"], authMiddleware, async (req, res) 
     unlock_tire_walls: 2,
     unlock_number_plates: 2,
     unlock_wheel_rims: 3,
+    unlock_headlights: 2,
+    unlock_smoke: 2,
+    unlock_exhaust_effects: 2,
+    unlock_brake_rotors: 2,
+    inject_universal_livery: 3,
+    inject_ultimate_speed: 4,
+    ultimate_injection: 10,
     inject_car: 1,
     inject_cars: 1,
     inject_random_cars: 2,
@@ -6947,6 +7174,92 @@ app.post(["/api/carx/inject", "/carx/inject"], authMiddleware, async (req, res) 
         successMsg = option === "next" || count === 1
           ? `✅ Successfully injected next Wheel Rims one-by-one! (${statsNow.rims_count} Rims Approved & Installed).`
           : `✅ Successfully injected Custom Wheel Rims! (${statsNow.rims_count} Rims Approved & Installed).`;
+      } else if (service_type === "unlock_headlights") {
+        const option = req.body.headlight_option || headlight_option || "all";
+        const count = req.body.custom_count ? parseInt(req.body.custom_count, 10) : (option === "next" ? 1 : undefined);
+        modified = modifyProfile(profile, {
+          unlock_headlights: true,
+          headlight_option: option,
+          custom_count: count,
+          unlock_houses,
+          unlock_clubs
+        }, userId);
+        const statsNow = extractProfileStats(modified, false);
+        successMsg = option === "next" || count === 1
+          ? `✅ Successfully injected next Headlight Tint one-by-one! (${statsNow.headlights_count}/${statsNow.headlights_total} Tints Installed).`
+          : `✅ Successfully injected All Headlight & Glass Light Tints! (${statsNow.headlights_count}/${statsNow.headlights_total} Tints Installed).`;
+      } else if (service_type === "unlock_smoke") {
+        const option = req.body.smoke_option || smoke_option || "all";
+        const count = req.body.custom_count ? parseInt(req.body.custom_count, 10) : (option === "next" ? 1 : undefined);
+        modified = modifyProfile(profile, {
+          unlock_smoke: true,
+          smoke_option: option,
+          custom_count: count,
+          unlock_houses,
+          unlock_clubs
+        }, userId);
+        const statsNow = extractProfileStats(modified, false);
+        successMsg = option === "next" || count === 1
+          ? `✅ Successfully injected next Burnout Smoke Paint one-by-one! (${statsNow.smoke_count}/${statsNow.smoke_total} Smokes Installed).`
+          : `✅ Successfully injected All Tire Burnout Smoke Paints! (${statsNow.smoke_count}/${statsNow.smoke_total} Smokes Installed).`;
+      } else if (service_type === "unlock_exhaust_effects") {
+        const option = req.body.exhaust_option || exhaust_option || "all";
+        const count = req.body.custom_count ? parseInt(req.body.custom_count, 10) : (option === "next" ? 1 : undefined);
+        modified = modifyProfile(profile, {
+          unlock_exhaust_effects: true,
+          exhaust_option: option,
+          custom_count: count,
+          unlock_houses,
+          unlock_clubs
+        }, userId);
+        const statsNow = extractProfileStats(modified, false);
+        successMsg = option === "next" || count === 1
+          ? `✅ Successfully injected next Exhaust Backfire Flame one-by-one! (${statsNow.exhaust_count}/${statsNow.exhaust_total} Installed).`
+          : `✅ Successfully injected All Exhaust Flames & Nitro Backfire! (${statsNow.exhaust_count}/${statsNow.exhaust_total} Installed).`;
+      } else if (service_type === "unlock_brake_rotors") {
+        const option = req.body.brake_option || brake_option || "all";
+        const count = req.body.custom_count ? parseInt(req.body.custom_count, 10) : (option === "next" ? 1 : undefined);
+        modified = modifyProfile(profile, {
+          unlock_brake_rotors: true,
+          brake_option: option,
+          custom_count: count,
+          unlock_houses,
+          unlock_clubs
+        }, userId);
+        const statsNow = extractProfileStats(modified, false);
+        successMsg = option === "next" || count === 1
+          ? `✅ Successfully injected next Brake Rotor / Caliper kit one-by-one! (${statsNow.brake_rotors_count}/${statsNow.brake_rotors_total} Installed).`
+          : `✅ Successfully injected All Brake Rotors & Caliper Kits! (${statsNow.brake_rotors_count}/${statsNow.brake_rotors_total} Installed).`;
+      } else if (service_type === "inject_universal_livery") {
+        modified = modifyProfile(profile, {
+          inject_universal_livery: true,
+          unlock_houses,
+          unlock_clubs
+        }, userId);
+        const carCount = Object.keys(modified.cars?.items || {}).length;
+        successMsg = `✅ Successfully unlocked Universal Livery System across ALL ${carCount} cars! (6 Livery Slots + Author Permissions + All Vinyl Packs).`;
+      } else if (service_type === "inject_ultimate_speed") {
+        modified = modifyProfile(profile, {
+          inject_ultimate_speed: true,
+          unlock_houses,
+          unlock_clubs
+        }, userId);
+        const carCount = Object.keys(modified.cars?.items || {}).length;
+        successMsg = `✅ Successfully injected Ultimate Racing Speed & Performance Tuning across ALL ${carCount} cars! (Stage 3 Racing Block, Turbo, Transmission, ECU & 0 Degradation).`;
+      } else if (service_type === "ultimate_injection") {
+        modified = modifyProfile(profile, {
+          cash: 50000000,
+          gold: 99999,
+          exp: 999999,
+          get_all_cars: true,
+          unlock_maps: true,
+          unlock_houses: true,
+          unlock_clubs: true,
+          unlock_streetpass: true,
+          ultimate_injection: true,
+          unlock_all: true
+        }, userId);
+        successMsg = `🏆 ULTIMATE INJECTION EXECUTED! 189+ Cars, Max Currency, All Maps/Houses/Clubs, StreetPass, All 15 Neons, 12 Headlights, 10 Burnout Smokes, 8 Exhaust Flames, 8 Brake Kits, 412 Wheel Rims, 70+ Plates, Universal Liveries on ALL Cars & Stage 3 Racing Speed Tuning!`;
       } else if (service_type === "inject_car") {
         if (!inject_car) {
           return res.status(400).json({ success: false, message: "Car model name (inject_car) is required." });

@@ -1168,3 +1168,380 @@ export function getWheelRimKeys(option: string = "all"): { rewards: string[]; ca
   }
   return { rewards: ALL_WHEEL_RIM_REWARDS, carParts: ALL_WHEEL_RIM_BODY_PARTS };
 }
+
+
+// ============================================================
+// ULTIMATE INJECTION DATASETS EXTRACTED FROM DUMP.CS
+// ============================================================
+
+// 1. Headlights & Glass Light Tints
+export const ALL_HEADLIGHT_REWARDS: string[] = [
+  "unlock_headlight_xenon_white",
+  "unlock_headlight_cyber_cyan",
+  "unlock_headlight_crimson_red",
+  "unlock_headlight_midnight_purple",
+  "unlock_headlight_golden_amber",
+  "unlock_headlight_emerald_green",
+  "unlock_headlight_stealth_smoke",
+  "unlock_headlight_ice_blue",
+  "unlock_headlight_sunset_orange",
+  "unlock_headlight_violet_glow",
+  "unlock_headlight_chameleon",
+  "unlock_headlight_strobe_pulse"
+];
+
+export const ALL_HEADLIGHT_BODY_PARTS: string[] = [
+  "headlight_paints",
+  "headlight_paint_xenon_white",
+  "headlight_paint_cyber_cyan",
+  "headlight_paint_crimson_red",
+  "headlight_paint_midnight_purple",
+  "headlight_paint_golden_amber",
+  "headlight_paint_emerald_green",
+  "headlight_paint_stealth_smoke",
+  "headlight_paint_ice_blue",
+  "headlight_paint_sunset_orange",
+  "headlight_paint_violet_glow",
+  "headlight_paint_chameleon",
+  "headlight_paint_strobe_pulse",
+  "glass_lights",
+  "glass_lights_clear",
+  "glass_lights_yellow",
+  "glass_lights_tint_dark",
+  "glass_lights_tint_chameleon"
+];
+
+// 2. Tire Burnout Smoke Paints
+export const ALL_SMOKE_REWARDS: string[] = [
+  "unlock_smoke_crimson_red",
+  "unlock_smoke_electric_blue",
+  "unlock_smoke_toxic_green",
+  "unlock_smoke_midnight_purple",
+  "unlock_smoke_golden_amber",
+  "unlock_smoke_stealth_black",
+  "unlock_smoke_cyber_cyan",
+  "unlock_smoke_neon_pink",
+  "unlock_smoke_chameleon_rainbow",
+  "unlock_smoke_pure_white"
+];
+
+export const ALL_SMOKE_BODY_PARTS: string[] = [
+  "smoke_paints",
+  "smoke_paint_crimson_red",
+  "smoke_paint_electric_blue",
+  "smoke_paint_toxic_green",
+  "smoke_paint_midnight_purple",
+  "smoke_paint_golden_amber",
+  "smoke_paint_stealth_black",
+  "smoke_paint_cyber_cyan",
+  "smoke_paint_neon_pink",
+  "smoke_paint_chameleon_rainbow",
+  "smoke_paint_pure_white",
+  "smoke_intensity_max"
+];
+
+// 3. Exhaust Effects & Backfire Nitro
+export const ALL_EXHAUST_EFFECT_REWARDS: string[] = [
+  "unlock_exhaust_flame_nitro",
+  "unlock_exhaust_flame_pop_bang",
+  "unlock_exhaust_flame_blue_torch",
+  "unlock_exhaust_flame_crimson_fire",
+  "unlock_exhaust_flame_green_acid",
+  "unlock_exhaust_flame_purple_haze",
+  "unlock_exhaust_flame_rainbow",
+  "unlock_exhaust_flame_twin_turbo"
+];
+
+export const ALL_EXHAUST_EFFECT_PARTS: string[] = [
+  "exhaust_effect_parts",
+  "styling_exhaust_effect_part",
+  "ExhaustFlameNitro",
+  "exhaust_flame_nitro",
+  "exhaust_flame_pop_bang",
+  "exhaust_flame_blue_torch",
+  "exhaust_flame_crimson_fire",
+  "exhaust_flame_green_acid",
+  "exhaust_flame_purple_haze",
+  "exhaust_flame_rainbow",
+  "exhaust_flame_twin_turbo"
+];
+
+// 4. Brake Rotors & Calipers
+export const ALL_BRAKE_ROTOR_REWARDS: string[] = [
+  "unlock_brake_rotors_drilled_front",
+  "unlock_brake_rotors_drilled_rear",
+  "unlock_brake_rotors_slotted_front",
+  "unlock_brake_rotors_slotted_rear",
+  "unlock_brake_calipers_brembo_red",
+  "unlock_brake_calipers_acid_gold",
+  "unlock_brake_calipers_racing_blue",
+  "unlock_brake_calipers_stealth_black"
+];
+
+export const ALL_BRAKE_ROTOR_PARTS: string[] = [
+  "rotor_drilled_front",
+  "rotor_drilled_rear",
+  "rotor_slotted_front",
+  "rotor_slotted_rear",
+  "caliper_brembo_red_front",
+  "caliper_brembo_red_rear",
+  "caliper_acid_gold_front",
+  "caliper_acid_gold_rear",
+  "caliper_racing_blue_front",
+  "caliper_racing_blue_rear",
+  "caliper_stealth_black_front",
+  "caliper_stealth_black_rear",
+  "brake_caliper_sport",
+  "suspension_brakes_racing"
+];
+
+// 5. Universal Livery Packs
+export const ALL_VINYL_PACK_KEYS: string[] = [
+  "vinyl_pack_camo",
+  "vinyl_pack_racing",
+  "vinyl_pack_street",
+  "vinyl_pack_flames",
+  "vinyl_pack_japanese",
+  "vinyl_pack_tribal",
+  "vinyl_pack_cyber",
+  "vinyl_pack_stripes",
+  "vinyl_pack_speed",
+  "vinyl_pack_graffiti",
+  "vinyl_pack_sponsor_logos",
+  "vinyl_pack_drift_kings"
+];
+
+export function injectHeadlightCosmetics(profile: any, option: string = "all", count?: number): { addedRewards: number; addedParts: number } {
+  profile.battle_pass_event_rewards = profile.battle_pass_event_rewards || { keys: [] };
+  if (!Array.isArray(profile.battle_pass_event_rewards.keys)) profile.battle_pass_event_rewards.keys = [];
+  const existingR = new Set<string>(profile.battle_pass_event_rewards.keys);
+
+  let targetRewards: string[] = [];
+  let targetParts: string[] = [];
+
+  if (option === "next" || count === 1) {
+    const nextReward = ALL_HEADLIGHT_REWARDS.find(r => !existingR.has(r));
+    if (nextReward) {
+      targetRewards = [nextReward];
+      const matchKey = nextReward.replace(/^unlock_headlight_/, "");
+      targetParts = ALL_HEADLIGHT_BODY_PARTS.filter(p => p.includes(matchKey) || p.startsWith("glass_lights") || p === "headlight_paints");
+    }
+  } else {
+    targetRewards = ALL_HEADLIGHT_REWARDS;
+    targetParts = ALL_HEADLIGHT_BODY_PARTS;
+  }
+
+  let addedRewards = 0;
+  for (const r of targetRewards) {
+    if (!existingR.has(r)) {
+      profile.battle_pass_event_rewards.keys.push(r);
+      existingR.add(r);
+      addedRewards++;
+    }
+  }
+
+  return { addedRewards, addedParts: targetParts.length };
+}
+
+export function injectSmokeCosmetics(profile: any, option: string = "all", count?: number): { addedRewards: number; addedParts: number } {
+  profile.battle_pass_event_rewards = profile.battle_pass_event_rewards || { keys: [] };
+  if (!Array.isArray(profile.battle_pass_event_rewards.keys)) profile.battle_pass_event_rewards.keys = [];
+  const existingR = new Set<string>(profile.battle_pass_event_rewards.keys);
+
+  let targetRewards: string[] = [];
+  let targetParts: string[] = [];
+
+  if (option === "next" || count === 1) {
+    const nextReward = ALL_SMOKE_REWARDS.find(r => !existingR.has(r));
+    if (nextReward) {
+      targetRewards = [nextReward];
+      const matchKey = nextReward.replace(/^unlock_smoke_/, "");
+      targetParts = ALL_SMOKE_BODY_PARTS.filter(p => p.includes(matchKey) || p.startsWith("smoke_"));
+    }
+  } else {
+    targetRewards = ALL_SMOKE_REWARDS;
+    targetParts = ALL_SMOKE_BODY_PARTS;
+  }
+
+  let addedRewards = 0;
+  for (const r of targetRewards) {
+    if (!existingR.has(r)) {
+      profile.battle_pass_event_rewards.keys.push(r);
+      existingR.add(r);
+      addedRewards++;
+    }
+  }
+
+  return { addedRewards, addedParts: targetParts.length };
+}
+
+export function injectExhaustCosmetics(profile: any, option: string = "all", count?: number): { addedRewards: number; addedParts: number } {
+  profile.battle_pass_event_rewards = profile.battle_pass_event_rewards || { keys: [] };
+  if (!Array.isArray(profile.battle_pass_event_rewards.keys)) profile.battle_pass_event_rewards.keys = [];
+  const existingR = new Set<string>(profile.battle_pass_event_rewards.keys);
+
+  let targetRewards: string[] = [];
+  let targetParts: string[] = [];
+
+  if (option === "next" || count === 1) {
+    const nextReward = ALL_EXHAUST_EFFECT_REWARDS.find(r => !existingR.has(r));
+    if (nextReward) {
+      targetRewards = [nextReward];
+      const matchKey = nextReward.replace(/^unlock_exhaust_/, "");
+      targetParts = ALL_EXHAUST_EFFECT_PARTS.filter(p => p.includes(matchKey) || p.includes("exhaust_effect_parts"));
+    }
+  } else {
+    targetRewards = ALL_EXHAUST_EFFECT_REWARDS;
+    targetParts = ALL_EXHAUST_EFFECT_PARTS;
+  }
+
+  let addedRewards = 0;
+  for (const r of targetRewards) {
+    if (!existingR.has(r)) {
+      profile.battle_pass_event_rewards.keys.push(r);
+      existingR.add(r);
+      addedRewards++;
+    }
+  }
+
+  return { addedRewards, addedParts: targetParts.length };
+}
+
+export function injectBrakeRotorCosmetics(profile: any, option: string = "all", count?: number): { addedRewards: number; addedParts: number } {
+  profile.battle_pass_event_rewards = profile.battle_pass_event_rewards || { keys: [] };
+  if (!Array.isArray(profile.battle_pass_event_rewards.keys)) profile.battle_pass_event_rewards.keys = [];
+  const existingR = new Set<string>(profile.battle_pass_event_rewards.keys);
+
+  let targetRewards: string[] = [];
+  let targetParts: string[] = [];
+
+  if (option === "next" || count === 1) {
+    const nextReward = ALL_BRAKE_ROTOR_REWARDS.find(r => !existingR.has(r));
+    if (nextReward) {
+      targetRewards = [nextReward];
+      const matchKey = nextReward.replace(/^unlock_brake_/, "");
+      targetParts = ALL_BRAKE_ROTOR_PARTS.filter(p => p.includes(matchKey) || p.includes("rotor_") || p.includes("caliper_"));
+    }
+  } else {
+    targetRewards = ALL_BRAKE_ROTOR_REWARDS;
+    targetParts = ALL_BRAKE_ROTOR_PARTS;
+  }
+
+  let addedRewards = 0;
+  for (const r of targetRewards) {
+    if (!existingR.has(r)) {
+      profile.battle_pass_event_rewards.keys.push(r);
+      existingR.add(r);
+      addedRewards++;
+    }
+  }
+
+  return { addedRewards, addedParts: targetParts.length };
+}
+
+// Apply universal livery slots & packs to ALL cars in the garage fleet
+export function applyUniversalLiveriesToAllCars(profile: any): number {
+  if (!profile) return 0;
+  const carsDict = profile.cars?.items || (profile.cars && typeof profile.cars === "object" && !Array.isArray(profile.cars) ? profile.cars : {});
+  let carsUpdated = 0;
+
+  for (const cid of Object.keys(carsDict)) {
+    const car = carsDict[cid];
+    if (!car || typeof car !== "object") continue;
+
+    // 1. Ensure all 6 livery slots exist and have author permission
+    car.vinyls_slots = car.vinyls_slots || { seed: 0, items: {} };
+    car.vinyls_slots.items = car.vinyls_slots.items || {};
+
+    for (let i = 0; i < 6; i++) {
+      const slotId = `vinyls_slot_${i}`;
+      if (!car.vinyls_slots.items[slotId]) {
+        car.vinyls_slots.items[slotId] = {
+          __desc_id: slotId,
+          vinyls: { seed: 0, items: {} },
+          is_player_author: true
+        };
+      } else {
+        car.vinyls_slots.items[slotId].is_player_author = true;
+      }
+    }
+
+    if (!car.selected_vinyls_slot) {
+      car.selected_vinyls_slot = "vinyls_slot_0";
+    }
+
+    // 2. Unlock all vinyl packs for the car
+    car.vinyl_pack_set = car.vinyl_pack_set || { keys: [] };
+    if (!Array.isArray(car.vinyl_pack_set.keys)) {
+      car.vinyl_pack_set.keys = [];
+    }
+    const currentPacks = new Set<string>(car.vinyl_pack_set.keys);
+    for (const vp of ALL_VINYL_PACK_KEYS) {
+      if (!currentPacks.has(vp)) {
+        car.vinyl_pack_set.keys.push(vp);
+        currentPacks.add(vp);
+      }
+    }
+
+    carsUpdated++;
+  }
+
+  return carsUpdated;
+}
+
+// Apply Ultimate Speed & Racing Engine Tuning to ALL cars in the garage
+export function applyUltimateSpeedTuningToAllCars(profile: any, premiumBuilds?: Record<string, any>): number {
+  if (!profile) return 0;
+  const carsDict = profile.cars?.items || (profile.cars && typeof profile.cars === "object" && !Array.isArray(profile.cars) ? profile.cars : {});
+  let carsTuned = 0;
+
+  for (const cid of Object.keys(carsDict)) {
+    const car = carsDict[cid];
+    if (!car || typeof car !== "object") continue;
+
+    const carModel = car.__desc_id;
+    // If premium build exists for this model, adopt its maxed tuning setup
+    if (premiumBuilds && carModel && premiumBuilds[carModel]?.tuning) {
+      car.tuning = JSON.parse(JSON.stringify(premiumBuilds[carModel].tuning));
+    } else {
+      // Build top-tier racing tuning tree
+      car.tuning = car.tuning || { cells: {} };
+      car.tuning.cells = car.tuning.cells || {};
+
+      // Stage 3 / Ultimate engine block & camshaft
+      if (!car.tuning.cells["0"]) {
+        car.tuning.cells["0"] = {
+          stack: {
+            id: `engine_${carModel || "race"}`,
+            _lv: {
+              value: {
+                parts_collection: { seed: 0, items: {} },
+                resources: {
+                  resource: {},
+                  repair_limit: { amount: 999999 },
+                  throttle_limit: { amount: 999999 }
+                },
+                cells: {
+                  "0": { stack: { id: "engine_block_3", _lv: { value: { stat_tunes: { power: 1.5, torque: 1.5 } } } } },
+                  "1": { stack: { id: "engine_camshaft_3", _lv: { value: { stat_tunes: { redline: 1.3 } } } } },
+                  "2": { stack: { id: "engine_cooling_racing", _lv: { value: { stat_tunes: {} } } } },
+                  "3": { stack: { id: "engine_ecu_racing", _lv: { value: { stat_tunes: { boost: 2.0, speed_limiter: 0 } } } } },
+                  "4": { stack: { id: "turbo_stage_3", _lv: { value: { stat_tunes: { boost_pressure: 2.5 } } } } }
+                }
+              }
+            }
+          }
+        };
+      }
+    }
+
+    // Set unlimited durability/throttling resources
+    car.resources = car.resources || {};
+    car.resources["repair_limit"] = { amount: 999999 };
+    car.resources["throttle_limit"] = { amount: 999999 };
+
+    carsTuned++;
+  }
+
+  return carsTuned;
+}

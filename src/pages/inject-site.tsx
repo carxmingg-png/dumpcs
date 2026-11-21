@@ -19,6 +19,13 @@ import {
   useUnlockTireWalls,
   useUnlockNumberPlates,
   useUnlockWheelRims,
+  useUnlockHeadlights,
+  useUnlockSmoke,
+  useUnlockExhaustEffects,
+  useUnlockBrakeRotors,
+  useInjectUniversalLivery,
+  useInjectUltimateSpeed,
+  useUltimateInjection,
   useInjectAll,
   useSafeRepair,
   useCleanRewriteAccount,
@@ -84,6 +91,20 @@ interface ProfileStats {
   rims_count?: number;
   rims_total?: number;
   rims_approved?: boolean;
+  headlights_count?: number;
+  headlights_total?: number;
+  headlights_approved?: boolean;
+  smoke_count?: number;
+  smoke_total?: number;
+  smoke_approved?: boolean;
+  exhaust_count?: number;
+  exhaust_total?: number;
+  exhaust_approved?: boolean;
+  brake_rotors_count?: number;
+  brake_rotors_total?: number;
+  brake_rotors_approved?: boolean;
+  all_cars_have_liveries?: boolean;
+  all_cars_speed_tuned?: boolean;
   profile_styles_approved?: boolean;
   maps_approved?: boolean;
   houses_approved?: boolean;
@@ -338,9 +359,8 @@ function BatchForm({ userToken }: { userToken: string }) {
             <button
               key={v}
               onClick={() => setCarsMode(v)}
-              className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${
-                carsMode === v ? "bg-purple-600 border-purple-400 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] font-bold" : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-              }`}
+              className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${carsMode === v ? "bg-purple-600 border-purple-400 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] font-bold" : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
+                }`}
             >
               <span className="text-xs font-chakra">{l}</span>
               <span className={`text-[9px] font-mono mt-0.5 ${carsMode === v ? "text-purple-200" : "text-zinc-500"}`}>{sub}</span>
@@ -616,7 +636,7 @@ function LoginForm({ userToken, onSuccess }: { userToken: string; onSuccess: (s:
     try {
       const savedIds = localStorage.getItem(`carx_device_ids_${email}`);
       if (savedIds) storedDeviceIds = JSON.parse(savedIds);
-    } catch {}
+    } catch { }
 
     if (!storedDeviceIds) {
       const randHex = (len: number) => {
@@ -676,15 +696,14 @@ function LoginForm({ userToken, onSuccess }: { userToken: string; onSuccess: (s:
             <button
               key={m}
               onClick={() => handleModeChange(m)}
-              className={`flex items-center gap-1.5 flex-1 justify-center py-2.5 rounded-xl text-xs font-gaming font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                mode === m
+              className={`flex items-center gap-1.5 flex-1 justify-center py-2.5 rounded-xl text-xs font-gaming font-bold uppercase tracking-wider transition-all cursor-pointer ${mode === m
                   ? (m === "delete"
-                      ? "bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]"
-                      : m === "rebuild"
+                    ? "bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]"
+                    : m === "rebuild"
                       ? "bg-amber-500 text-black shadow-[0_0_15px_rgba(245,158,11,0.4)]"
                       : "bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)]")
                   : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/40"
-              }`}
+                }`}
             >
               {m === "login" ? <User className="w-3.5 h-3.5" /> : m === "register" ? <UserPlus className="w-3.5 h-3.5" /> : m === "rebuild" ? <RefreshCw className="w-3.5 h-3.5" /> : m === "delete" ? <Trash2 className="w-3.5 h-3.5 text-red-400" /> : <Users className="w-3.5 h-3.5" />}
               {m === "login" ? "Login" : m === "register" ? "Register" : m === "rebuild" ? "Rebuild" : m === "delete" ? "Purge" : "Batch"}
@@ -704,17 +723,16 @@ function LoginForm({ userToken, onSuccess }: { userToken: string; onSuccess: (s:
           <button
             key={m}
             onClick={() => handleModeChange(m)}
-            className={`flex items-center gap-1.5 flex-1 justify-center py-2.5 rounded-xl text-xs font-gaming font-bold uppercase tracking-wider transition-all cursor-pointer ${
-              mode === m
+            className={`flex items-center gap-1.5 flex-1 justify-center py-2.5 rounded-xl text-xs font-gaming font-bold uppercase tracking-wider transition-all cursor-pointer ${mode === m
                 ? (m === "delete"
-                    ? "bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] border border-red-400/50"
-                    : m === "rebuild"
+                  ? "bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] border border-red-400/50"
+                  : m === "rebuild"
                     ? "bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.5)] font-extrabold"
                     : m === "register"
-                    ? "bg-gradient-to-r from-cyan-500 to-teal-400 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)] font-extrabold"
-                    : "bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] font-extrabold")
+                      ? "bg-gradient-to-r from-cyan-500 to-teal-400 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)] font-extrabold"
+                      : "bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] font-extrabold")
                 : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50"
-            }`}
+              }`}
           >
             {m === "login" ? <User className="w-3.5 h-3.5" /> : m === "register" ? <UserPlus className="w-3.5 h-3.5" /> : m === "rebuild" ? <RefreshCw className="w-3.5 h-3.5" /> : m === "delete" ? <Trash2 className="w-3.5 h-3.5 text-red-400" /> : <Users className="w-3.5 h-3.5" />}
             {m === "login" ? "Login" : m === "register" ? "Register" : m === "rebuild" ? "Rebuild" : m === "delete" ? "Purge" : "Batch"}
@@ -902,11 +920,10 @@ function LoginForm({ userToken, onSuccess }: { userToken: string; onSuccess: (s:
               data-testid="button-carx-submit"
               type="submit"
               disabled={isPending || !email || !password}
-              className={`w-full py-3.5 rounded-xl font-gaming font-bold text-xs tracking-widest uppercase transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${
-                mode === "login"
+              className={`w-full py-3.5 rounded-xl font-gaming font-bold text-xs tracking-widest uppercase transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${mode === "login"
                   ? "bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black hover:from-amber-400 hover:to-yellow-300 shadow-[0_0_25px_rgba(245,158,11,0.35)] hover:shadow-[0_0_35px_rgba(245,158,11,0.5)]"
                   : "bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 text-black hover:from-cyan-400 hover:to-emerald-300 shadow-[0_0_25px_rgba(6,182,212,0.35)] hover:shadow-[0_0_35px_rgba(6,182,212,0.5)]"
-              }`}
+                }`}
             >
               {isPending ? (
                 <span className="flex items-center justify-center gap-2">
@@ -1399,6 +1416,104 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
     },
   });
 
+  const unlockHeadlights = useUnlockHeadlights({
+    mutation: {
+      onSuccess: (d: any) => {
+        setResults(r => ({ ...r, headlights: { ok: true, msg: d.message || "Headlights Injected!" } }));
+        toast({ title: "Headlights Injected!", description: d.message });
+        fetchProfile();
+      },
+      onError: (err: any) => {
+        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+        setResults(r => ({ ...r, headlights: { ok: false, msg: msg || "Failed to inject headlights" } }));
+      },
+    },
+  });
+
+  const unlockSmoke = useUnlockSmoke({
+    mutation: {
+      onSuccess: (d: any) => {
+        setResults(r => ({ ...r, smoke: { ok: true, msg: d.message || "Burnout Smoke Injected!" } }));
+        toast({ title: "Burnout Smoke Injected!", description: d.message });
+        fetchProfile();
+      },
+      onError: (err: any) => {
+        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+        setResults(r => ({ ...r, smoke: { ok: false, msg: msg || "Failed to inject smoke" } }));
+      },
+    },
+  });
+
+  const unlockExhaustEffects = useUnlockExhaustEffects({
+    mutation: {
+      onSuccess: (d: any) => {
+        setResults(r => ({ ...r, exhaust: { ok: true, msg: d.message || "Exhaust Backfire Injected!" } }));
+        toast({ title: "Exhaust Flames Injected!", description: d.message });
+        fetchProfile();
+      },
+      onError: (err: any) => {
+        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+        setResults(r => ({ ...r, exhaust: { ok: false, msg: msg || "Failed to inject exhaust" } }));
+      },
+    },
+  });
+
+  const unlockBrakeRotors = useUnlockBrakeRotors({
+    mutation: {
+      onSuccess: (d: any) => {
+        setResults(r => ({ ...r, brakeRotors: { ok: true, msg: d.message || "Brake Kits Injected!" } }));
+        toast({ title: "Brake Kits Injected!", description: d.message });
+        fetchProfile();
+      },
+      onError: (err: any) => {
+        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+        setResults(r => ({ ...r, brakeRotors: { ok: false, msg: msg || "Failed to inject brake rotors" } }));
+      },
+    },
+  });
+
+  const injectUniversalLivery = useInjectUniversalLivery({
+    mutation: {
+      onSuccess: (d: any) => {
+        setResults(r => ({ ...r, universalLivery: { ok: true, msg: d.message || "Universal Liveries Applied!" } }));
+        toast({ title: "Universal Liveries Unlocked!", description: d.message });
+        fetchProfile();
+      },
+      onError: (err: any) => {
+        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+        setResults(r => ({ ...r, universalLivery: { ok: false, msg: msg || "Failed to unlock liveries" } }));
+      },
+    },
+  });
+
+  const injectUltimateSpeed = useInjectUltimateSpeed({
+    mutation: {
+      onSuccess: (d: any) => {
+        setResults(r => ({ ...r, ultimateSpeed: { ok: true, msg: d.message || "Ultimate Speed & Tuning Applied!" } }));
+        toast({ title: "Ultimate Speed Injected!", description: d.message });
+        fetchProfile();
+      },
+      onError: (err: any) => {
+        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+        setResults(r => ({ ...r, ultimateSpeed: { ok: false, msg: msg || "Failed to inject ultimate speed" } }));
+      },
+    },
+  });
+
+  const ultimateInjection = useUltimateInjection({
+    mutation: {
+      onSuccess: (d: any) => {
+        setResults(r => ({ ...r, ultimateInjection: { ok: true, msg: d.message || "ULTIMATE ACCOUNT INJECTION COMPLETE!" } }));
+        toast({ title: "🏆 ULTIMATE INJECTION COMPLETED!", description: d.message });
+        fetchProfile();
+      },
+      onError: (err: any) => {
+        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+        setResults(r => ({ ...r, ultimateInjection: { ok: false, msg: msg || "Failed to run ultimate injection" } }));
+      },
+    },
+  });
+
   const injectAll = useInjectAll({
     mutation: {
       onSuccess: (d: any) => {
@@ -1806,11 +1921,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                 filteredFleet.map((c, idx) => (
                   <div
                     key={`${c.id}-${idx}`}
-                    className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
-                      c.id === profile?.current_car_id || c.descId === profile?.current_car
+                    className={`flex items-center justify-between p-3 rounded-xl border transition-all ${c.id === profile?.current_car_id || c.descId === profile?.current_car
                         ? "bg-purple-950/40 border-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.2)]"
                         : "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-lg">🏎️</span>
@@ -1886,11 +2000,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                 </div>
               )}
               {profile?.isVerified !== undefined && (
-                <span className={`text-[10px] font-chakra font-bold px-2 py-0.5 rounded-full border ${
-                  profile.isVerified
+                <span className={`text-[10px] font-chakra font-bold px-2 py-0.5 rounded-full border ${profile.isVerified
                     ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
                     : "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                }`}>
+                  }`}>
                   {profile.isVerified ? "✓ VERIFIED EMAIL" : "⚠️ UNVERIFIED"}
                 </span>
               )}
@@ -2048,22 +2161,20 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
       </div>
 
       {/* Account Watchdog & Optional Rolling Backup Card */}
-      <div className={`cyber-card rounded-3xl p-5 border transition-all ${
-        isBlockedByAdmin
+      <div className={`cyber-card rounded-3xl p-5 border transition-all ${isBlockedByAdmin
           ? "border-red-500/40 bg-red-950/20"
           : isBackupEnabled
-          ? "border-emerald-500/40 bg-emerald-950/10 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
-          : "border-zinc-800 bg-black/60"
-      }`}>
+            ? "border-emerald-500/40 bg-emerald-950/10 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
+            : "border-zinc-800 bg-black/60"
+        }`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border shadow-sm ${
-              isBlockedByAdmin
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border shadow-sm ${isBlockedByAdmin
                 ? "bg-red-500/20 border-red-500/40 text-red-400"
                 : isBackupEnabled
-                ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
-                : "bg-purple-500/20 border-purple-500/40 text-purple-400"
-            }`}>
+                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+                  : "bg-purple-500/20 border-purple-500/40 text-purple-400"
+              }`}>
               {isBlockedByAdmin ? <Lock className="w-5 h-5" /> : <HardDrive className="w-5 h-5" />}
             </div>
             <div>
@@ -2095,15 +2206,14 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
           <div className="flex items-center gap-2 self-start sm:self-center">
             <div className="text-left sm:text-right">
               <div className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">WATCHDOG STATUS</div>
-              <div className={`text-xs font-mono font-bold mt-0.5 ${
-                watchdogStatus === "active"
+              <div className={`text-xs font-mono font-bold mt-0.5 ${watchdogStatus === "active"
                   ? "text-emerald-400"
                   : watchdogStatus === "recent"
-                  ? "text-yellow-400"
-                  : watchdogStatus === "dormant"
-                  ? "text-zinc-400"
-                  : "text-blue-400"
-              }`}>
+                    ? "text-yellow-400"
+                    : watchdogStatus === "dormant"
+                      ? "text-zinc-400"
+                      : "text-blue-400"
+                }`}>
                 {watchdogLabel}
               </div>
             </div>
@@ -2163,13 +2273,12 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                   }
                 );
               }}
-              className={`px-3 py-2 rounded-xl text-xs font-chakra font-bold border transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                isBlockedByAdmin
+              className={`px-3 py-2 rounded-xl text-xs font-chakra font-bold border transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isBlockedByAdmin
                   ? "bg-zinc-900 border-zinc-800 text-zinc-600"
                   : isBackupEnabled
-                  ? "bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-500/40 text-emerald-300"
-                  : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300"
-              }`}
+                    ? "bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-500/40 text-emerald-300"
+                    : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300"
+                }`}
             >
               {toggleBackup.isPending ? "Updating..." : isBackupEnabled ? "✓ Auto-Backup: ON" : "Enable Auto-Backup (Optional)"}
             </button>
@@ -2317,11 +2426,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                 <button
                   key={v}
                   onClick={() => setCurrencyPreset(v)}
-                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${
-                    currencyPreset === v
+                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${currencyPreset === v
                       ? "bg-amber-500 border-amber-400 text-black font-bold shadow-[0_0_15px_rgba(245,158,11,0.4)]"
                       : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                  }`}
+                    }`}
                 >
                   <span className="text-xs font-chakra">{l}</span>
                   <span className={`text-[9px] font-mono mt-0.5 ${currencyPreset === v ? "text-black/80 font-bold" : "text-zinc-500"}`}>{sub}</span>
@@ -2477,11 +2585,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                 <button
                   key={v}
                   onClick={() => setCarsMode(v)}
-                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${
-                    carsMode === v
+                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${carsMode === v
                       ? "bg-purple-600 border-purple-400 text-white font-bold shadow-[0_0_15px_rgba(168,85,247,0.3)]"
                       : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                  }`}
+                    }`}
                 >
                   <span className="text-xs font-chakra">{l}</span>
                   <span className={`text-[9px] font-mono mt-0.5 ${carsMode === v ? "text-purple-200" : "text-zinc-500"}`}>{sub}</span>
@@ -2545,11 +2652,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                   <p className="text-[10px] font-chakra text-red-300/80">Active Token Probe · Restriction Test</p>
                 </div>
               </div>
-              <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold uppercase ${
-                profile?.isBanned || banCheckResult?.isBanned
+              <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold uppercase ${profile?.isBanned || banCheckResult?.isBanned
                   ? "bg-red-500/20 text-red-300 border-red-500/40 animate-pulse"
                   : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-              }`}>
+                }`}>
                 {profile?.isBanned || banCheckResult?.isBanned ? "🚨 BANNED" : "🛡️ ACTIVE / CLEAN"}
               </span>
             </div>
@@ -2584,11 +2690,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className={`p-4 rounded-2xl border-2 text-xs font-chakra space-y-2.5 shadow-2xl ${
-                  banCheckResult.isBanned
+                className={`p-4 rounded-2xl border-2 text-xs font-chakra space-y-2.5 shadow-2xl ${banCheckResult.isBanned
                     ? "bg-zinc-950 border-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.45)] ring-1 ring-red-500/50"
                     : "bg-zinc-950 border-emerald-400 text-white shadow-[0_0_30px_rgba(52,211,153,0.35)] ring-1 ring-emerald-500/50"
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between font-bold pb-2 border-b border-zinc-800">
                   <span className="flex items-center gap-2 text-sm uppercase font-gaming tracking-wide">
@@ -2671,11 +2776,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                   <p className="text-[10px] font-chakra text-yellow-300/80">Battle Pass · Tier Rewards · EP Boost</p>
                 </div>
               </div>
-              <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold uppercase ${
-                profile?.streetPass
+              <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold uppercase ${profile?.streetPass
                   ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
                   : "bg-zinc-800 text-zinc-500 border-zinc-700"
-              }`}>
+                }`}>
                 {profile?.streetPass ? "ACTIVE PASS" : "LOCKED"}
               </span>
             </div>
@@ -2771,11 +2875,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                   key={v}
                   type="button"
                   onClick={() => setCosmeticsMode(v)}
-                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${
-                    cosmeticsMode === v
+                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${cosmeticsMode === v
                       ? "bg-pink-600 border-pink-400 text-white font-bold shadow-[0_0_15px_rgba(236,72,153,0.3)]"
                       : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                  }`}
+                    }`}
                 >
                   <span className="text-xs font-chakra">{l}</span>
                   <span className={`text-[9px] font-mono mt-0.5 ${cosmeticsMode === v ? "text-pink-200" : "text-zinc-500"}`}>{sub}</span>
@@ -2846,10 +2949,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                 cosmeticsMode === "next"
                   ? "👤 UNLOCK NEXT AVATAR & FRAME (+1)"
                   : cosmeticsMode === "custom"
-                  ? `👤 INJECT ${customCosmeticCount || 1} SETS (ONE-BY-ONE)`
-                  : cosmeticsMode === "specific"
-                  ? `👤 EQUIP SET #${selectedCosmeticSet}`
-                  : "👤 UNLOCK ALL 20 AVATARS & FRAMES"
+                    ? `👤 INJECT ${customCosmeticCount || 1} SETS (ONE-BY-ONE)`
+                    : cosmeticsMode === "specific"
+                      ? `👤 EQUIP SET #${selectedCosmeticSet}`
+                      : "👤 UNLOCK ALL 20 AVATARS & FRAMES"
               )}
             </button>
             {results.profileStyle && (
@@ -2877,11 +2980,11 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
               <div className="flex items-center gap-1.5">
                 {profile?.neons_approved ? (
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase flex items-center gap-1 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> APPROVED ✅ (15/15)
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> APPROVED ✅ (ALL CARS & 15/15)
                   </span>
                 ) : (profile?.neons_count || 0) > 0 ? (
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold uppercase flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3 text-amber-400" /> {profile?.neons_count}/15 KITS
+                    <AlertCircle className="w-3 h-3 text-amber-400" /> {profile?.neons_count}/15 KITS ({profile?.cars_with_neons || 0}/{profile?.cars || 0} CARS)
                   </span>
                 ) : (
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold uppercase">
@@ -2901,11 +3004,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                   key={v}
                   type="button"
                   onClick={() => setNeonOption(v)}
-                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${
-                    neonOption === v
+                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${neonOption === v
                       ? "bg-cyan-600 border-cyan-400 text-white font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)]"
                       : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                  }`}
+                    }`}
                 >
                   <span className="text-xs font-chakra">{l}</span>
                   <span className={`text-[9px] font-mono mt-0.5 ${neonOption === v ? "text-cyan-200" : "text-zinc-500"}`}>{sub}</span>
@@ -2997,11 +3099,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                   key={v}
                   type="button"
                   onClick={() => setTireOption(v)}
-                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${
-                    tireOption === v
+                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${tireOption === v
                       ? "bg-amber-600 border-amber-400 text-white font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                       : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                  }`}
+                    }`}
                 >
                   <span className="text-xs font-chakra">{l}</span>
                   <span className={`text-[9px] font-mono mt-0.5 ${tireOption === v ? "text-amber-200" : "text-zinc-500"}`}>{sub}</span>
@@ -3093,11 +3194,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                   key={v}
                   type="button"
                   onClick={() => setPlateOption(v)}
-                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${
-                    plateOption === v
+                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${plateOption === v
                       ? "bg-purple-600 border-purple-400 text-white font-bold shadow-[0_0_15px_rgba(168,85,247,0.3)]"
                       : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                  }`}
+                    }`}
                 >
                   <span className="text-xs font-chakra">{l}</span>
                   <span className={`text-[9px] font-mono mt-0.5 ${plateOption === v ? "text-purple-200" : "text-zinc-500"}`}>{sub}</span>
@@ -3165,11 +3265,11 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
               <div className="flex items-center gap-1.5">
                 {profile?.rims_approved ? (
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase flex items-center gap-1 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> APPROVED ✅ ({profile?.rims_count} Rims)
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> APPROVED ✅ (ALL CARS & {profile?.rims_count} Rims)
                   </span>
                 ) : (profile?.rims_count || 0) > 0 ? (
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold uppercase flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3 text-amber-400" /> {profile?.rims_count} RIMS
+                    <AlertCircle className="w-3 h-3 text-amber-400" /> {profile?.rims_count} RIMS ({profile?.cars_with_rims || 0}/{profile?.cars || 0} CARS)
                   </span>
                 ) : (
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold uppercase">
@@ -3189,11 +3289,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                   key={v}
                   type="button"
                   onClick={() => setRimOption(v)}
-                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${
-                    rimOption === v
+                  className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all border cursor-pointer ${rimOption === v
                       ? "bg-blue-600 border-blue-400 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)]"
                       : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                  }`}
+                    }`}
                 >
                   <span className="text-xs font-chakra">{l}</span>
                   <span className={`text-[9px] font-mono mt-0.5 ${rimOption === v ? "text-blue-200" : "text-zinc-500"}`}>{sub}</span>
@@ -3245,7 +3344,500 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
           </div>
         </div>
 
-        {/* Safe Repair Module */}
+                {/* 1. HEADLIGHT & GLASS LIGHT TINTS */}
+        <div className="cyber-card cyber-card-glow-amber rounded-3xl p-5 space-y-4 flex flex-col justify-between border border-amber-500/30">
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-gaming font-bold text-white tracking-wider uppercase">HEADLIGHT & GLASS TINTS</h3>
+                  <p className="text-[10px] font-chakra text-amber-300/80">Xenon, Cyber Cyan, Crimson & Chameleon Tints</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {profile?.headlights_approved ? (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> ALL 12 TINTS APPROVED ✅
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold uppercase">
+                    {profile?.headlights_count || 0}/12 TINTS UNLOCKED
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <p className="text-[11px] text-zinc-400 font-chakra leading-relaxed">
+              Inject custom headlight bulb hues, glass tint levels (dark, amber, chameleon) and synchronized lighting effects extracted directly from the dump engine.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!session) return;
+                  unlockHeadlights.mutate({
+                    data: {
+                      token: session.token,
+                      deviceId: session.deviceId,
+                      uniqueId: session.uniqueId,
+                      service_type: "unlock_headlights",
+                      headlight_option: "next",
+                      custom_count: 1
+                    }
+                  });
+                }}
+                disabled={unlockHeadlights.isPending || !session}
+                className="py-2.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-gaming font-bold tracking-wider transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {unlockHeadlights.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                INJECT NEXT (ONE-BY-ONE)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!session) return;
+                  unlockHeadlights.mutate({
+                    data: {
+                      token: session.token,
+                      deviceId: session.deviceId,
+                      uniqueId: session.uniqueId,
+                      service_type: "unlock_headlights",
+                      headlight_option: "all"
+                    }
+                  });
+                }}
+                disabled={unlockHeadlights.isPending || !session}
+                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black text-xs font-gaming font-bold tracking-wider shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {unlockHeadlights.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                UNLOCK ALL 12 TINTS
+              </button>
+            </div>
+
+            {results.headlights && (
+              <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${results.headlights.ok ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
+                {results.headlights.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                {results.headlights.msg}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 2. BURNOUT SMOKE PAINTS */}
+        <div className="cyber-card cyber-card-glow-purple rounded-3xl p-5 space-y-4 flex flex-col justify-between border border-purple-500/30">
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                  <Activity className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-gaming font-bold text-white tracking-wider uppercase">BURNOUT SMOKE PAINTS</h3>
+                  <p className="text-[10px] font-chakra text-purple-300/80">Electric Blue, Toxic Green, Crimson & Rainbow Smoke</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {profile?.smoke_approved ? (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> ALL 10 SMOKES APPROVED ✅
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold uppercase">
+                    {profile?.smoke_count || 0}/10 SMOKES UNLOCKED
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <p className="text-[11px] text-zinc-400 font-chakra leading-relaxed">
+              Unlock customized tire drift and burnout smoke formulations with max cloud density and neon rainbow particles.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!session) return;
+                  unlockSmoke.mutate({
+                    data: {
+                      token: session.token,
+                      deviceId: session.deviceId,
+                      uniqueId: session.uniqueId,
+                      service_type: "unlock_smoke",
+                      smoke_option: "next",
+                      custom_count: 1
+                    }
+                  });
+                }}
+                disabled={unlockSmoke.isPending || !session}
+                className="py-2.5 px-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-gaming font-bold tracking-wider transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {unlockSmoke.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
+                INJECT NEXT (ONE-BY-ONE)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!session) return;
+                  unlockSmoke.mutate({
+                    data: {
+                      token: session.token,
+                      deviceId: session.deviceId,
+                      uniqueId: session.uniqueId,
+                      service_type: "unlock_smoke",
+                      smoke_option: "all"
+                    }
+                  });
+                }}
+                disabled={unlockSmoke.isPending || !session}
+                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs font-gaming font-bold tracking-wider shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {unlockSmoke.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                UNLOCK ALL 10 SMOKES
+              </button>
+            </div>
+
+            {results.smoke && (
+              <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${results.smoke.ok ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
+                {results.smoke.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                {results.smoke.msg}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 3. EXHAUST FLAMES & BACKFIRE NITRO */}
+        <div className="cyber-card cyber-card-glow-rose rounded-3xl p-5 space-y-4 flex flex-col justify-between border border-rose-500/30">
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.2)]">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-gaming font-bold text-white tracking-wider uppercase">EXHAUST FLAMES & BACKFIRE</h3>
+                  <p className="text-[10px] font-chakra text-rose-300/80">Nitro Spits, Pop & Bang, Blue Torch & Twin Turbo Flames</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {profile?.exhaust_approved ? (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> ALL 8 FLAMES APPROVED ✅
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold uppercase">
+                    {profile?.exhaust_count || 0}/8 FLAMES UNLOCKED
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <p className="text-[11px] text-zinc-400 font-chakra leading-relaxed">
+              Inject two-step pop and bang backfire flame kits, high-velocity nitro spitfire tails, and blue torch exhaust effects.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!session) return;
+                  unlockExhaustEffects.mutate({
+                    data: {
+                      token: session.token,
+                      deviceId: session.deviceId,
+                      uniqueId: session.uniqueId,
+                      service_type: "unlock_exhaust_effects",
+                      exhaust_option: "next",
+                      custom_count: 1
+                    }
+                  });
+                }}
+                disabled={unlockExhaustEffects.isPending || !session}
+                className="py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-gaming font-bold tracking-wider transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {unlockExhaustEffects.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                INJECT NEXT (ONE-BY-ONE)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!session) return;
+                  unlockExhaustEffects.mutate({
+                    data: {
+                      token: session.token,
+                      deviceId: session.deviceId,
+                      uniqueId: session.uniqueId,
+                      service_type: "unlock_exhaust_effects",
+                      exhaust_option: "all"
+                    }
+                  });
+                }}
+                disabled={unlockExhaustEffects.isPending || !session}
+                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white text-xs font-gaming font-bold tracking-wider shadow-[0_0_15px_rgba(244,63,94,0.3)] transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {unlockExhaustEffects.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                UNLOCK ALL 8 FLAMES
+              </button>
+            </div>
+
+            {results.exhaust && (
+              <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${results.exhaust.ok ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
+                {results.exhaust.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                {results.exhaust.msg}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 4. BRAKE ROTORS & CALIPER KITS */}
+        <div className="cyber-card cyber-card-glow-red rounded-3xl p-5 space-y-4 flex flex-col justify-between border border-red-500/30">
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                  <Disc className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-gaming font-bold text-white tracking-wider uppercase">BRAKE ROTORS & CALIPERS</h3>
+                  <p className="text-[10px] font-chakra text-red-300/80">Drilled & Slotted Rotors with Brembo Red & Acid Gold Calipers</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {profile?.brake_rotors_approved ? (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> ALL 8 BRAKE KITS APPROVED ✅
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 font-bold uppercase">
+                    {profile?.brake_rotors_count || 0}/8 KITS UNLOCKED
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <p className="text-[11px] text-zinc-400 font-chakra leading-relaxed">
+              Outfit the whole fleet with performance ventilated drilled/slotted racing brake discs and oversized branded calipers.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!session) return;
+                  unlockBrakeRotors.mutate({
+                    data: {
+                      token: session.token,
+                      deviceId: session.deviceId,
+                      uniqueId: session.uniqueId,
+                      service_type: "unlock_brake_rotors",
+                      brake_option: "next",
+                      custom_count: 1
+                    }
+                  });
+                }}
+                disabled={unlockBrakeRotors.isPending || !session}
+                className="py-2.5 px-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/40 text-red-300 text-xs font-gaming font-bold tracking-wider transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {unlockBrakeRotors.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Disc className="w-3.5 h-3.5" />}
+                INJECT NEXT (ONE-BY-ONE)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!session) return;
+                  unlockBrakeRotors.mutate({
+                    data: {
+                      token: session.token,
+                      deviceId: session.deviceId,
+                      uniqueId: session.uniqueId,
+                      service_type: "unlock_brake_rotors",
+                      brake_option: "all"
+                    }
+                  });
+                }}
+                disabled={unlockBrakeRotors.isPending || !session}
+                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white text-xs font-gaming font-bold tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {unlockBrakeRotors.isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                UNLOCK ALL 8 BRAKE KITS
+              </button>
+            </div>
+
+            {results.brakeRotors && (
+              <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${results.brakeRotors.ok ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
+                {results.brakeRotors.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                {results.brakeRotors.msg}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 5. UNIVERSAL LIVERY SYSTEM (ALL 189+ CARS) */}
+        <div className="cyber-card cyber-card-glow-indigo rounded-3xl p-5 space-y-4 flex flex-col justify-between border border-indigo-500/30">
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                  <Palette className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-gaming font-bold text-white tracking-wider uppercase">UNIVERSAL LIVERY ON ALL CARS</h3>
+                  <p className="text-[10px] font-chakra text-indigo-300/80">6 Livery Slots + Author Permissions + All Vinyl Packs</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-bold uppercase flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-indigo-400" /> APPLIED ON ALL {profile?.cars || 189} CARS
+                </span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-zinc-400 font-chakra leading-relaxed">
+              Unlocks all 6 custom livery vinyl slots with full author rights (<code className="text-indigo-300 font-mono">is_player_author: true</code>) and attaches all sponsor, street, racing, camo, and cyber vinyl packs across every car in your garage fleet.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!session) return;
+                injectUniversalLivery.mutate({
+                  data: {
+                    token: session.token,
+                    deviceId: session.deviceId,
+                    uniqueId: session.uniqueId,
+                    service_type: "inject_universal_livery"
+                  }
+                });
+              }}
+              disabled={injectUniversalLivery.isPending || !session}
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs font-gaming font-bold tracking-wider shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {injectUniversalLivery.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Palette className="w-4 h-4" />}
+              UNLOCK LIVERY SLOTS ON ALL 189+ CARS
+            </button>
+
+            {results.universalLivery && (
+              <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${results.universalLivery.ok ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
+                {results.universalLivery.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                {results.universalLivery.msg}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 6. ULTIMATE SPEED & ENGINE PERFORMANCE TUNING */}
+        <div className="cyber-card cyber-card-glow-cyan rounded-3xl p-5 space-y-4 flex flex-col justify-between border border-cyan-500/30">
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-gaming font-bold text-white tracking-wider uppercase">ULTIMATE SPEED & FLEET TUNING</h3>
+                  <p className="text-[10px] font-chakra text-cyan-300/80">Stage 3 Racing Block, Turbo, Transmission, ECU & Zero Degradation</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold uppercase flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-cyan-400" /> MAX RACING SPECS
+                </span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-zinc-400 font-chakra leading-relaxed">
+              Injects authentic high-velocity racing configurations, stage 3 turbo/superchargers, racing transmissions, and removes repair/throttle limits (<code className="text-cyan-300 font-mono">999,999 durability</code>) across all garage vehicles!
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!session) return;
+                injectUltimateSpeed.mutate({
+                  data: {
+                    token: session.token,
+                    deviceId: session.deviceId,
+                    uniqueId: session.uniqueId,
+                    service_type: "inject_ultimate_speed"
+                  }
+                });
+              }}
+              disabled={injectUltimateSpeed.isPending || !session}
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-black text-xs font-gaming font-bold tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {injectUltimateSpeed.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+              INJECT MAX SPEED & TUNING ON ALL CARS
+            </button>
+
+            {results.ultimateSpeed && (
+              <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${results.ultimateSpeed.ok ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
+                {results.ultimateSpeed.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                {results.ultimateSpeed.msg}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 7. MASTER ULTIMATE ACCOUNT INJECTION (ALL-IN-ONE) */}
+        <div className="col-span-full rounded-3xl p-6 bg-gradient-to-br from-purple-950/40 via-zinc-950/80 to-cyan-950/40 border-2 border-cyan-500/50 shadow-[0_0_40px_rgba(6,182,212,0.25)] space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-cyan-500/30">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                <Trophy className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-gaming font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-300 to-pink-400 tracking-wider uppercase">
+                  🏆 MASTER ULTIMATE ACCOUNT INJECTION (ALL-IN-ONE)
+                </h3>
+                <p className="text-xs font-chakra text-zinc-300">
+                  One-click total godmode: 189+ Cars, Max Currency, Maps/Houses/Clubs, Neons, Lights, Smoke, Exhaust, Liveries & Speed!
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold uppercase flex items-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> ULTIMATE BUNDLE
+              </span>
+            </div>
+          </div>
+
+          <p className="text-xs text-zinc-300 font-chakra leading-relaxed">
+            Execute the definitive injection payload: activates 50M Soft Cash, 99K Gold, 999K XP, full StreetPass/Event Points, unlocks all 189+ authentic car builds, unlocks all district maps & houses, all 15 animated neons, 12 headlight tints, 10 burnout smokes, 8 exhaust flames, 8 brake rotor kits, 412 rims, 70+ license plates, installs 6 universal livery slots across all cars, and injects Stage 3 racing speed tuning across your entire fleet!
+          </p>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (!session) return;
+              ultimateInjection.mutate({
+                data: {
+                  token: session.token,
+                  deviceId: session.deviceId,
+                  uniqueId: session.uniqueId,
+                  service_type: "ultimate_injection"
+                }
+              });
+            }}
+            disabled={ultimateInjection.isPending || !session}
+            className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 hover:from-cyan-400 hover:via-indigo-500 hover:to-purple-500 text-white font-gaming font-black text-sm tracking-widest shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+          >
+            {ultimateInjection.isPending ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Trophy className="w-5 h-5" />}
+            EXECUTE ULTIMATE GODMODE INJECTION
+          </button>
+
+          {results.ultimateInjection && (
+            <div className={`p-3 rounded-xl border text-xs flex items-center gap-2.5 ${results.ultimateInjection.ok ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300" : "bg-red-500/20 border-red-500/50 text-red-300"}`}>
+              {results.ultimateInjection.ok ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+              {results.ultimateInjection.msg}
+            </div>
+          )}
+        </div>
+
+{/* Safe Repair Module */}
         <div className="cyber-card cyber-card-glow-emerald rounded-3xl p-5 space-y-4 flex flex-col justify-between border border-emerald-500/30">
           <div className="space-y-3.5">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
@@ -3349,16 +3941,14 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
       {/* High-Visibility Ban Check Popup Modal */}
       {banModalOpen && banCheckResult && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className={`cyber-card rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95)] border-2 space-y-5 ${
-            banCheckResult.isBanned
+          <div className={`cyber-card rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95)] border-2 space-y-5 ${banCheckResult.isBanned
               ? "border-red-500 shadow-[0_0_45px_rgba(239,68,68,0.5)] bg-zinc-950"
               : "border-emerald-400 shadow-[0_0_45px_rgba(52,211,153,0.45)] bg-zinc-950"
-          }`}>
+            }`}>
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border ${
-                  banCheckResult.isBanned ? "bg-red-500/20 border-red-500/50 text-red-400" : "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
-                }`}>
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border ${banCheckResult.isBanned ? "bg-red-500/20 border-red-500/50 text-red-400" : "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
+                  }`}>
                   {banCheckResult.isBanned ? <ShieldAlert className="w-6 h-6 animate-pulse" /> : <ShieldCheck className="w-6 h-6 text-emerald-400" />}
                 </div>
                 <div>
@@ -3378,11 +3968,10 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
             </div>
 
             {/* Status Banner */}
-            <div className={`p-4 rounded-2xl border-2 flex items-center justify-between gap-3 ${
-              banCheckResult.isBanned
+            <div className={`p-4 rounded-2xl border-2 flex items-center justify-between gap-3 ${banCheckResult.isBanned
                 ? "bg-red-600/20 border-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.3)]"
                 : "bg-emerald-600/20 border-emerald-400 text-white shadow-[0_0_20px_rgba(52,211,153,0.3)]"
-            }`}>
+              }`}>
               <div className="flex items-center gap-2.5">
                 <span className="text-2xl">{banCheckResult.isBanned ? "🚨" : "🛡️"}</span>
                 <div>
@@ -3394,9 +3983,8 @@ function InjectionPanel({ session, userToken, onDisconnect }: { session: CarXSes
                   </div>
                 </div>
               </div>
-              <span className={`px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
-                banCheckResult.isBanned ? "bg-red-600 text-white border-red-400" : "bg-emerald-500 text-black border-emerald-300"
-              }`}>
+              <span className={`px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border ${banCheckResult.isBanned ? "bg-red-600 text-white border-red-400" : "bg-emerald-500 text-black border-emerald-300"
+                }`}>
                 {banCheckResult.statusText || (banCheckResult.isBanned ? "BANNED" : "CLEAN")}
               </span>
             </div>
@@ -3499,7 +4087,7 @@ export default function InjectSite({ adminOverrideToken, hideHeader }: { adminOv
       } else {
         localStorage.removeItem("connectedCarXSession");
       }
-    } catch {}
+    } catch { }
   };
 
   const userToken = adminOverrideToken || token || "";
@@ -3554,11 +4142,10 @@ export default function InjectSite({ adminOverrideToken, hideHeader }: { adminOv
 
         <div className="mb-4">
           <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-            <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-chakra font-bold border transition-all ${
-              session
+            <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-chakra font-bold border transition-all ${session
                 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
                 : "bg-zinc-900/80 border-zinc-800 text-zinc-500"
-            }`}>
+              }`}>
               <div className={`w-2 h-2 rounded-full ${session ? "bg-emerald-400 animate-pulse" : "bg-zinc-600"}`} />
               {session ? `DRIVER LINKED: ${session.email}` : "DRIVER DISCONNECTED // AWAITING TELEMETRY"}
             </div>

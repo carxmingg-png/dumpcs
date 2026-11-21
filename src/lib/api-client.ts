@@ -261,6 +261,62 @@ export function useUnlockWheelRims(options?: any) {
   });
 }
 
+export function useUnlockHeadlights(options?: any) {
+  return useMutation({
+    mutationFn: (vars: { data: any }) =>
+      fetchApi("/api/carx/inject", { method: "POST", body: JSON.stringify(vars.data) }),
+    ...(options?.mutation || {}),
+  });
+}
+
+export function useUnlockSmoke(options?: any) {
+  return useMutation({
+    mutationFn: (vars: { data: any }) =>
+      fetchApi("/api/carx/inject", { method: "POST", body: JSON.stringify(vars.data) }),
+    ...(options?.mutation || {}),
+  });
+}
+
+export function useUnlockExhaustEffects(options?: any) {
+  return useMutation({
+    mutationFn: (vars: { data: any }) =>
+      fetchApi("/api/carx/inject", { method: "POST", body: JSON.stringify(vars.data) }),
+    ...(options?.mutation || {}),
+  });
+}
+
+export function useUnlockBrakeRotors(options?: any) {
+  return useMutation({
+    mutationFn: (vars: { data: any }) =>
+      fetchApi("/api/carx/inject", { method: "POST", body: JSON.stringify(vars.data) }),
+    ...(options?.mutation || {}),
+  });
+}
+
+export function useInjectUniversalLivery(options?: any) {
+  return useMutation({
+    mutationFn: (vars: { data: any }) =>
+      fetchApi("/api/carx/inject", { method: "POST", body: JSON.stringify(vars.data) }),
+    ...(options?.mutation || {}),
+  });
+}
+
+export function useInjectUltimateSpeed(options?: any) {
+  return useMutation({
+    mutationFn: (vars: { data: any }) =>
+      fetchApi("/api/carx/inject", { method: "POST", body: JSON.stringify(vars.data) }),
+    ...(options?.mutation || {}),
+  });
+}
+
+export function useUltimateInjection(options?: any) {
+  return useMutation({
+    mutationFn: (vars: { data: any }) =>
+      fetchApi("/api/carx/inject", { method: "POST", body: JSON.stringify(vars.data) }),
+    ...(options?.mutation || {}),
+  });
+}
+
 export function useGetCars(params?: any, options?: any) {
   return useQuery({
     queryKey: getGetCarsQueryKey(),
