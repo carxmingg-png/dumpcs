@@ -517,9 +517,9 @@ const GAME_BASE_URL = "https://street-prod.carx-online.com/str/v1/client";
 
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
-  "User-Agent": "CarXStreet/1.20.0 (Android; 13)",
+  "User-Agent": "UnityPlayer/6000.0.64f1 (UnityWebRequest/1.0, libcurl/8.10.1-DEV)",
   "Accept": "application/json",
-  "X-Unity-Version": "2021.3.16f1",
+  "X-Unity-Version": "6000.0.64f1",
   "X-App-Version": "1.20.0",
   "Connection": "Keep-Alive",
   "X-Project-Id": "4",
@@ -2260,6 +2260,7 @@ export function extractProfileStats(profile: any, debug = false) {
 
   // Check if ALL cars in fleet have neons and rims injected
   const allCarKeys = Object.keys(carsObj);
+  const carsDict = carsObj;
   let carsWithNeonsCount = 0;
   let carsWithRimsCount = 0;
   for (const cid of allCarKeys) {
@@ -2615,13 +2616,8 @@ class CarXClient {
   static async getProfile(token: string, userId?: string, deviceId?: string, uniqueId?: string) {
     const headers: Record<string, string> = {
       ...DEFAULT_HEADERS,
-      "X-Project": "STREET",
-      "Authorization": fToken(token),
-      "x-token": token.replace(/^Bearer\s+/i, "")
+      "Authorization": fToken(token)
     };
-    if (userId) {
-      headers["X-CarX-Id"] = String(userId);
-    }
     if (deviceId) {
       headers["Device-Id"] = deviceId;
       headers["X-Device-Id"] = deviceId;
@@ -2976,16 +2972,20 @@ class CarXClient {
     deviceId?: string,
     uniqueId?: string
   ) {
+    // 1. Direct save using exact proven bot.py engine first
+    try {
+      const directSave = await CarXClient.saveProfile(token, profile);
+      if (directSave && directSave.success) {
+        return { success: true, response: { status: 200 } };
+      }
+    } catch (e: any) {
+      console.warn(`[UPLOAD PROFILE] Direct saveProfile warning: ${e?.message}`);
+    }
+
     const headers: Record<string, string> = {
       ...DEFAULT_HEADERS,
-      "X-Project": "STREET",
-      "Authorization": fToken(token),
-      "x-token": token.replace(/^Bearer\s+/i, "")
+      "Authorization": fToken(token)
     };
-
-    if (userId) {
-      headers["X-CarX-Id"] = String(userId);
-    }
 
     if (deviceId) {
       headers["Device-Id"] = deviceId;
@@ -3038,13 +3038,6 @@ class CarXClient {
 
     if (!payload || typeof payload !== "object") {
       return { success: false, response: null, message: "Save validation error: profile payload is empty or invalid." };
-    }
-
-    // Always run full clean rewrite on account data before upload to eliminate "REPORT ERROR"
-    try {
-      payload = cleanRewriteAccountData(payload);
-    } catch (e: any) {
-      console.warn(`[UPLOAD PROFILE] Clean rewrite warning: ${e?.message}`);
     }
 
     // Strip any stale compressed_data so the JSON we compress contains fresh values
@@ -6042,10 +6035,14 @@ app.post(["/api/carx/login", "/carx/login"], authMiddleware, async (req, res) =>
       result.userId,
       (req as any).licenseKey,
       (req as any).role,
-      result.stats || result.data
+      result.rawProfile || result.profileStats || result.stats || result.data
     ).catch(() => {});
   }
-  res.json(result);
+  res.json({
+    ...result,
+    stats: result.profileStats || result.stats,
+    profileStats: result.profileStats || result.stats
+  });
 });
 
 // CarX Account Register
@@ -6120,10 +6117,16 @@ app.post(["/api/carx/register", "/carx/register"], authMiddleware, async (req, r
       result.userId,
       (req as any).licenseKey,
       (req as any).role,
-      result.stats || result.data
+      result.rawProfile || result.profileStats || result.stats || result.data
     ).catch(() => {});
   }
-  res.json({ ...result, email, password });
+  res.json({
+    ...result,
+    stats: result.profileStats || result.stats,
+    profileStats: result.profileStats || result.stats,
+    email,
+    password
+  });
 });
 
 
@@ -7302,7 +7305,7 @@ app.post(["/api/carx/inject", "/carx/inject"], authMiddleware, async (req, res) 
         ]);
         const stats = extractProfileStats(modified, false);
         if (authState) stats.isVerified = !!authState.verified;
-        return res.json({ success: true, message: successMsg, stats, ...creditResponse(remCredits) });
+        return res.json({ success: true, message: successMsg, stats, profileStats: stats, ...creditResponse(remCredits) });
       }
       return res.status(400).json({ success: false, message: "Failed to upload injected profile to server." });
     }
@@ -7382,7 +7385,7 @@ app.post(["/api/carx/inject", "/carx/inject"], authMiddleware, async (req, res) 
         ]);
         const stats = extractProfileStats(modified, false);
         if (authState) stats.isVerified = !!authState.verified;
-        return res.json({ success: true, message: msg, stats, ...creditResponse(remCredits) });
+        return res.json({ success: true, message: msg, stats, profileStats: stats, ...creditResponse(remCredits) });
       }
       return res.status(400).json({ success: false, message: "Failed to upload comprehensive profile." });
     }
